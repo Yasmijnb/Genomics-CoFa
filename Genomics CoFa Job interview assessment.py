@@ -7,7 +7,6 @@ I created a separate files for the tables,
 because I didn't have the time to parse the excel file
 """
 
-from sys import argv
 import csv
 
 def main():
@@ -51,57 +50,67 @@ def main():
                 qcmetrics[metrics[0]] = [metrics[1], metrics[2], metrics[3], metrics[4], metrics[5]]
 
     # How many samples are there?
-    print(len(qcmetrics))
+    print("{} samples were measered".format(len(platelayout)))
+    print("{} samples have QC metrics".format(len(qcmetrics)))
 
-def merge_sample_conc(sample_file, conc_file):
-    """
-    """
-    # Create empty lists and a dictionary for the samples and measurements
-    sampleslist = []
-    conclist = []
-    sampledict ={}
+    # Which samples are missing?
+    print("\nThe following samples were not QC'ed:")
+    print(platelayout.keys() - qcmetrics.keys() )
 
-    # Open the csv file with the samples
-    with open(sample_file, 'r') as sfile:
-        samplesfile = csv.reader(sfile, delimiter = ';')
+def merge_sample_conc(filename_one, filename_two):
+    """Creates a dictionary with items from filename_one as keys and items from
+    filename_two as values.
+
+    Keyword arguments:
+    filename_one -- string, file name of first csv file
+    filename_two -- string, file name of second csv file
+    """
+    # Create empty lists and a dictionary for the data
+    datalist_one = []
+    datalist_two = []
+    datadict ={}
+
+    # Open the first csv file
+    with open(filename_one, 'r') as fileone:
+        file = csv.reader(fileone, delimiter = ';')
         # Set a count at 0 to skip the header
         count = 0
         # Go through each row
-        for row in samplesfile:
-            if count == 0:
-                # Skip the header
-                count+=1
-            else:
-                # Go through each sample
-                for samples in row:
-                    # Make sure that the well was not empty
-                    if len(samples) > 1:
-                        # Add list sample to the list
-                        sampleslist.append(samples)
-
-    # Open the csv file with the concentrations
-    with open(conc_file, 'r') as cfile:
-        concfile = csv.reader(cfile, delimiter = ';')
-        # Set a count at 0 to skip the header
-        count = 0
-        # Go through each row
-        for row in concfile:
+        for row in file:
             if count == 0:
                 # Skip the header
                 count += 1
             else:
-                # Go through each measurement
-                for conc in row:
-                    # Make sure that the well was not empty
-                    if len(conc) > 1:
-                        # Add this measurement to the list
-                        conclist.append(conc)
+                # Go through each value
+                for value in row:
+                    # Make sure a value is present
+                    if len(value) > 1:
+                        # Add list value to the list
+                        datalist_one.append(value)
 
-    # Create a dictionary, linking each sample with its measurement
-    for count, row in enumerate(sampleslist):
-        sampledict[row] = conclist[count]
+    # Open the second csv file
+    with open(filename_two, 'r') as filetwo:
+        file = csv.reader(filetwo, delimiter = ';')
+        # Set a count at 0 to skip the header
+        count = 0
+        # Go through each row
+        for row in file:
+            if count == 0:
+                # Skip the header
+                count += 1
+            else:
+                # Go through each value
+                for value in row:
+                    # Make sure that a value is present
+                    if len(value) > 1:
+                        # Add this value to the list
+                        datalist_two.append(value)
 
-    return sampledict
+    # Create a dictionary, linking the item from table one with table two
+    for count, value in enumerate(datalist_one):
+        datadict[value] = datalist_two[count]
+
+    return datadict
 
 if __name__ == "__main__":
     main()
