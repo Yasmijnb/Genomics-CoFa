@@ -52,6 +52,7 @@ def main():
 
     # Write a table from the platelayout
     with open("./ReadCounts.csv", 'w') as file:
+        file.write("SampleID;ReadCount\n")
         for key, value in platelayout.items():
             file.write("%s;%s\n"%(key,value))
 
