@@ -50,6 +50,11 @@ def main():
                 # Save the sample ID to the dictionary with the list of metrics
                 qcmetrics[metrics[0]] = [metrics[1], metrics[2], metrics[3], metrics[4], metrics[5]]
 
+    # Write a table from the platelayout
+    with open("./ReadCounts.csv", 'w') as file:
+        for key, value in platelayout.items():
+            file.write("%s;%s\n"%(key,value))
+
     # How many samples are there?
     print("{} samples input".format(len(platelayout)))
     print("{} samples have QC metrics".format(len(qcmetrics)))
@@ -58,14 +63,14 @@ def main():
     print("\nThe following samples {} were not QC'ed:".format(len(platelayout)-len(qcmetrics)))
     print(platelayout.keys() - qcmetrics.keys())
 
-    # Check the controls. 
+    # Check the controls
     # If a concentration was measure for a CROSS.CONT.CTR sample, contamination occured during DNA isolation
     for key, value in platelayout.items():
         if key.startswith("CROSS"):
             if value != "#NUM!":
                 if float(value.replace(',','.')) > 0:
                     print("\nContamination occured during DNA isolation with sample {}".format(key))
-    
+
     # If a concentration was measured for a neg.CTR sample, contamination occured during PCR
     for key, value in platelayout.items():
         if key.startswith("neg"):
