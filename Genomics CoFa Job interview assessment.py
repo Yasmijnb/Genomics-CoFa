@@ -29,7 +29,6 @@ def main():
         # Add this plate's samples to the dictionary
         platelayout.update(platedict)
 
-
     # Create an emtpy dictionary for the QC metrics
     qcmetrics = {}
 
@@ -50,12 +49,17 @@ def main():
                 qcmetrics[metrics[0]] = [metrics[1], metrics[2], metrics[3], metrics[4], metrics[5]]
 
     # How many samples are there?
-    print("{} samples were measered".format(len(platelayout)))
+    print("{} samples input".format(len(platelayout)))
     print("{} samples have QC metrics".format(len(qcmetrics)))
 
     # Which samples are missing?
-    print("\nThe following samples were not QC'ed:")
-    print(platelayout.keys() - qcmetrics.keys() )
+    print("\nThe following samples {} were not QC'ed:".format(len(platelayout)-len(qcmetrics)))
+    print(platelayout.keys() - qcmetrics.keys())
+
+    # How many samples have no read count?
+    print("\nThe following {} samples have no read count".
+    format(sum(measurement == "#NUM!" for measurement in platedict.values())))
+    print([key for key, value in platedict.items() if value == "#NUM!"])
 
 def merge_sample_conc(filename_one, filename_two):
     """Creates a dictionary with items from filename_one as keys and items from
