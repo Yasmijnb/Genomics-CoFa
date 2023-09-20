@@ -5,6 +5,8 @@ Author: Yasmijn Balder
 
 I created a separate files for the tables,
 because I didn't have the time to parse the excel file
+
+I also did not use GATK tools because I do not know Java
 """
 
 import csv
@@ -56,10 +58,26 @@ def main():
     print("\nThe following samples {} were not QC'ed:".format(len(platelayout)-len(qcmetrics)))
     print(platelayout.keys() - qcmetrics.keys())
 
-    # How many samples have no read count?
-    print("\nThe following {} samples have no read count".
-    format(sum(measurement == "#NUM!" for measurement in platedict.values())))
-    print([key for key, value in platedict.items() if value == "#NUM!"])
+    # Check the controls. 
+    # If a concentration was measure for a CROSS.CONT.CTR sample, contamination occured during DNA isolation
+    for key, value in platelayout.items():
+        if key.startswith("CROSS"):
+            if value != "#NUM!":
+                if float(value.replace(',','.')) > 0:
+                    print("\nContamination occured during DNA isolation with sample {}".format(key))
+    
+    # If a concentration was measured for a neg.CTR sample, contamination occured during PCR
+    for key, value in platelayout.items():
+        if key.startswith("neg"):
+            if value != "#NUM!":
+                if float(value.replace(',','.')) > 0:
+                    print("\nContamination occured during PCR with sample {}\n".format(key))
+
+    # Which samples have no concentrations measured?
+    for key, value in platelayout.items():
+        if not key.startswith("CROSS") and not key.startswith("neg"):
+            if value == "#NUM!":
+                print("Nothing was measured in sample {}".format(key))
 
 def merge_sample_conc(filename_one, filename_two):
     """Creates a dictionary with items from filename_one as keys and items from
